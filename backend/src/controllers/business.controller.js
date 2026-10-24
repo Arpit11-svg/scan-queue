@@ -85,17 +85,27 @@ const loginBusiness = asyncHandler(async (req, res) => {
     // Generate JWT after successful authentication
     const token = generateToken(business);
 
-    // Send token and business details to frontend
-    return res.status(200).json({
+    const options = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 24 * 60 * 60 * 1000,
+        path: "/"
+    }
+
+    return res
+    .status(200)
+    .cookie("accessToken", token, options)
+    .json({
         success: true,
         message: "Login successful.",
-        token,
         business: {
             id: business.id,
             name: business.name,
             email: business.email
         }
     });
+    
 });
 
 
