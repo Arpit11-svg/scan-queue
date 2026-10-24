@@ -5,8 +5,10 @@ import dotenv from "dotenv";
 dotenv.config();
 const app = express();
 
-app.get('/', (req, res) => {
-    res.send('ScanQ is running...')
-})
+app.use(express.json());
+
+app.get('/', (_, res) => {
+    res.json({ message: 'ScanQ is running...' });
+});
 
 export default app;
