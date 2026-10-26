@@ -89,4 +89,4 @@ const updateQueueStatus = asyncHandler(async (req, res) => {
 
 
 
-export { getBusinessQueue, callNextCustomer }
+export { getBusinessQueue, callNextCustomer, updateQueueStatus };

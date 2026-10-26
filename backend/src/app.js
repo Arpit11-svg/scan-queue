@@ -13,10 +13,13 @@ app.get('/', (_, res) => {
 });
 
 //routes import
-import businessRouter from "./routes/business.route.js"
+import businessRouter from "./routes/business.route.js";
+import queueRouter from "./routes/queue.route.js";
+import customerQueueRouter from "./routes/customerQueue.route.js";
 
 //routes declaration
-app.use("/api/v1/business", businessRouter)
-app.use("/api/v1/queue", queueRouter)
+app.use("/api/v1/business", businessRouter);
+app.use("/api/v1/queue", queueRouter);
+app.use("/api/v1/customer-queue", customerQueueRouter);
 
 export default app;
