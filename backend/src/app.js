@@ -17,5 +17,6 @@ import businessRouter from "./routes/business.route.js"
 
 //routes declaration
 app.use("/api/v1/business", businessRouter)
+app.use("/api/v1/queue", queueRouter)
 
 export default app;
