@@ -52,6 +52,7 @@ const joinQueue = asyncHandler(async (req, res) => {
     });
 });
 
+//position of current customer with specific business_id and entryID 
 const getQueuePosition = asyncHandler(async (req, res) => {
     const { businessId, entryId } = req.params;
 
@@ -67,7 +68,7 @@ const getQueuePosition = asyncHandler(async (req, res) => {
                     (
                      SELECT COUNT(*)+1 
                      FROM queue_entries as ahead
-                     WHERE ahead.business_id = q.bussiness_id
+                     WHERE ahead.business_id = q.business_id
                      AND ahead.status = 'WAITING'
                      AND (
                         ahead.joined_at < q.joined_at

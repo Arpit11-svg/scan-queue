@@ -16,10 +16,12 @@ app.get('/', (_, res) => {
 import businessRouter from "./routes/business.route.js";
 import queueRouter from "./routes/queue.route.js";
 import customerQueueRouter from "./routes/customerQueue.route.js";
+import qrCodeRouter from "./routes/qrCode.route.js"
 
 //routes declaration
 app.use("/api/v1/business", businessRouter);
 app.use("/api/v1/queue", queueRouter);
 app.use("/api/v1/customer-queue", customerQueueRouter);
+app.use("/api/v1/qr-code", qrCodeRouter);
 
 export default app;
