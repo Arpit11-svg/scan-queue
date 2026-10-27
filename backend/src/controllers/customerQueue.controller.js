@@ -99,4 +99,31 @@ const getQueuePosition = asyncHandler(async (req, res) => {
     });
 });
 
-export { joinQueue, getQueuePosition };
+const leaveQueue = asyncHandler(async (req, res) => {
+    const { businessId, entryId } = req.params;
+
+    const result = await pool.query(
+        `UPDATE queue_entries
+         SET status = 'CANCELLED'
+         WHERE id = $1 
+          AND business_id = $2
+          AND status IN ('WAITING', 'CALLED')
+         RETURNING id, name, mobile, status`,
+        [entryId, businessId]
+    );
+
+    if (result.rows.length === 0) {
+        return res.status(404).json({
+            success: false,
+            message: "Queue entry not found or already removed."
+        });
+    }
+
+    return res.status(200).json({
+        success: true,
+        message: "You have left the queue successfully.",
+        data: result.rows[0]
+    });
+});
+
+export { joinQueue, getQueuePosition, leaveQueue };
