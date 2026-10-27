@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#1D4ED8"/>
+    </linearGradient>
+    <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06B6D4"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)"/>
+
+  <g fill="#FFFFFF">
+    <rect x="80" y="80" width="112" height="112" rx="20" fill="none" stroke="#FFFFFF" stroke-width="24"/>
+    <rect x="112" y="112" width="48" height="48" rx="8"/>
+
+    <rect x="320" y="80" width="112" height="112" rx="20" fill="none" stroke="#FFFFFF" stroke-width="24"/>
+    <rect x="352" y="112" width="48" height="48" rx="8"/>
+
+    <rect x="80" y="320" width="112" height="112" rx="20" fill="none" stroke="#FFFFFF" stroke-width="24"/>
+    <rect x="112" y="352" width="48" height="48" rx="8"/>
+
+    <rect x="224" y="80" width="48" height="48" rx="8"/>
+    <rect x="224" y="160" width="48" height="24" rx="6"/>
+    <rect x="80" y="224" width="24" height="48" rx="6"/>
+    <rect x="136" y="224" width="48" height="24" rx="6"/>
+  </g>
+
+  <g transform="translate(180, 180)">
+    <circle cx="160" cy="160" r="100" fill="none" stroke="#FFFFFF" stroke-width="28"/>
+    <circle cx="160" cy="160" r="64" fill="none" stroke="url(#cyanGrad)" stroke-width="12" stroke-dasharray="280 60" stroke-dashoffset="40"/>
+    <path d="M 226 226 L 300 300" fill="none" stroke="#06B6D4" stroke-width="32" stroke-linecap="round"/>
+    <path d="M 226 226 L 300 300" fill="none" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round"/>
+  </g>
+</svg>
