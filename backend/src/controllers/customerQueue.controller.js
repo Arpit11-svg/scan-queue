@@ -1,4 +1,4 @@
-import asyncHandler from "../utils/asyncHandler.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import pool from "../config/db.js";
 
 const joinQueue = asyncHandler(async (req, res) => {
@@ -52,4 +52,51 @@ const joinQueue = asyncHandler(async (req, res) => {
     });
 });
 
-export { joinQueue };
+const getQueuePosition = asyncHandler(async (req, res) => {
+    const { businessId, entryId } = req.params;
+
+    const result = await pool.query(
+        `SELECT
+            q.id,
+            q.name,
+            q.mobile,
+            q.status,
+            q.joined_at,
+            CASE
+                WHEN q.status = 'WAITING' THEN
+                    (
+                     SELECT COUNT(*)+1 
+                     FROM queue_entries as ahead
+                     WHERE ahead.business_id = q.bussiness_id
+                     AND ahead.status = 'WAITING'
+                     AND (
+                        ahead.joined_at < q.joined_at
+                        OR (
+                            ahead.joined_at = q.joined_at 
+                            AND ahead.id < q.id
+                        )
+                     )
+                    )
+                ELSE
+                    NULL
+            END AS position
+        FROM queue_entries as q
+        WHERE q.id = $1
+        AND q.business_id = $2`,
+        [entryId, businessId]
+    );
+
+    if (result.rows.length === 0) {
+        return res.status(404).json({
+            success: false,
+            message: "Queue entry not found."
+        });
+    }
+
+    return res.status(200).json({
+        success: true,
+        data: result.rows[0]
+    });
+});
+
+export { joinQueue, getQueuePosition };

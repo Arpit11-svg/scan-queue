@@ -1,4 +1,4 @@
-import asyncHandler from "../utils/asyncHandler.js";
+import {asyncHandler} from "../utils/asyncHandler.js";
 import pool from "../config/db.js";
 
 
@@ -18,6 +18,7 @@ const getBusinessQueue = asyncHandler(async (req, res) => {
 });
 
 const callNextCustomer = asyncHandler(async (req, res) => {
+
     const result = await pool.query(
         `Update queue_entries
          SET status = 'CALLED'
@@ -63,14 +64,14 @@ const updateQueueStatus = asyncHandler(async (req, res) => {
         `UPDATE queue_entries
          SET status = $1,
              served_at = CASE
-                 WHEN $1 = 'SERVED' THEN NOW()
+                 WHEN $4 = 'SERVED' THEN NOW()
                  ELSE served_at
              END
          WHERE id = $2
            AND business_id = $3
            AND status IN ('WAITING', 'CALLED')
          RETURNING id, name, status, served_at`,
-        [status, id, req.business.id]
+        [status, id, req.business.id, status]
     );
 
     if(result.rows.length === 0) {
