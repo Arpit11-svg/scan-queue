@@ -11,7 +11,17 @@ class AuthService {
 
             return response;
         } catch (error) {
-            console.log("ERROR FROM AUTH.SERVICE.JS file: ", error);
+            throw error;
+        }
+    }
+
+    async login(formData){
+        try {
+            const response = await apiRequest("/business/login", {
+                method: "POST",
+                body: JSON.stringify(formData)
+            })
+        } catch (error) {
             throw error;
         }
     }
