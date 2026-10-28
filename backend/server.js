@@ -6,7 +6,7 @@ const PORT = process.env.PORT || 5000;
 
 async function startServer() {
     try {
-        await pool.connect();
+         await pool.query("SELECT 1");
         console.log("===== Database connected successfully! =====");
 
         app.listen(PORT, () => {

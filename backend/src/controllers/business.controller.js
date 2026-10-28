@@ -5,15 +5,18 @@ import generateToken from "../utils/generateToken.js";
 
 
 const registerBusiness = asyncHandler(async (req, res) => {
-    
+
     const { name, email, password } = req.body;
 
-    if ([name, email, password].some(field => field.trim() === "")) {
-        res.status(400).json({
+    if (
+        !name?.trim() ||
+        !email?.trim() ||
+        !password?.trim()
+    ) {
+        return res.status(400).json({
             success: false,
-            message: "Please provide all required fields: name, email, and password."
+            message: "Name, email, and password are required.",
         });
-        return;
     }
 
     const existedBusiness = await pool.query(
@@ -29,8 +32,8 @@ const registerBusiness = asyncHandler(async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
-    
-     await pool.query(
+
+    await pool.query(
         "INSERT INTO businesses (name, email, password_hash) VALUES ($1, $2, $3)",
         [name, email, hashedPassword]
     );
@@ -94,18 +97,18 @@ const loginBusiness = asyncHandler(async (req, res) => {
     }
 
     return res
-    .status(200)
-    .cookie("accessToken", token, options)
-    .json({
-        success: true,
-        message: "Login successful.",
-        business: {
-            id: business.id,
-            name: business.name,
-            email: business.email
-        }
-    });
-    
+        .status(200)
+        .cookie("accessToken", token, options)
+        .json({
+            success: true,
+            message: "Login successful.",
+            business: {
+                id: business.id,
+                name: business.name,
+                email: business.email
+            }
+        });
+
 });
 
 
