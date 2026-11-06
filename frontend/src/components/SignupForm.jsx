@@ -59,7 +59,7 @@ function SignupForm() {
       <div>
         <Input
           label="Business Name"
-          placeholder="Max Hospital"
+          placeholder="e.g, Max Hospital"
           {...register("name", { required: "Business name is required" })}
         />
         {errorText(errors.name?.message)}
@@ -68,7 +68,7 @@ function SignupForm() {
       <div>
         <Input
           label="Business Email"
-          placeholder="maxhospitals@gmail.com"
+          placeholder="e.g, maxhospitals@gmail.com"
           {...register("email", {
             required: "Business email is required",
             pattern: {

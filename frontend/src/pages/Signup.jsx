@@ -36,7 +36,7 @@ const places = [
 
 function Signup() {
   return (
-    <div className="grid min-h-screen bg-slate-950 lg:grid-cols-2">
+    <div className=" grid min-h-screen bg-slate-950 lg:grid-cols-2">
       {/* LEFT: product promo (hidden on small screens) */}
       <div className="hidden flex-col justify-between bg-blue-600 p-12 text-white lg:flex">
         <div className="flex items-center gap-3">
@@ -69,7 +69,7 @@ function Signup() {
           </div>
         </div>
 
-        <p className="text-sm text-blue-200">
+        <p className="mt-8 text-sm text-blue-200 ">
           © {new Date().getFullYear()} ScanQ. No more physical lines.
         </p>
       </div>

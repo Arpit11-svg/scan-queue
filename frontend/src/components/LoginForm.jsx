@@ -54,7 +54,7 @@ function LoginForm() {
       <div>
         <Input
           label="Business Email"
-          placeholder="maxhospitals@gmail.com"
+          placeholder="e.g, maxhospitals@gmail.com"
           {...register("email", {
             required: "Business email is required",
             pattern: {
