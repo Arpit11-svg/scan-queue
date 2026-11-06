@@ -30,9 +30,12 @@ function SignupForm() {
         password: data.password,
       });
 
-      setSuccess("Account created successfully!");
-      // navigate("/login");
+      setSuccess("Account created successfully! Redirecting to login page...");
       reset();
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
+      
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong.");
     } finally {

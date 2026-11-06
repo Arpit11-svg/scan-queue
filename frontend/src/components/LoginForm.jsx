@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import authService from "../services/auth.service.js";
 import Input from "./ui/Input.jsx";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
 function LoginForm() {
   const {
@@ -14,6 +15,7 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const navigate = useNavigate();
 
   const login = async (data) => {
     setError("");
@@ -26,8 +28,12 @@ function LoginForm() {
         password: data.password,
       });
 
-      setSuccess("Logged in successfully!");
+      setSuccess("Logged in successfully! Redirecting to dashboard...");
       reset();
+
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 3000);
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong.");
     } finally {

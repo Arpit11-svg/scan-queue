@@ -111,5 +111,39 @@ const loginBusiness = asyncHandler(async (req, res) => {
 
 });
 
+const businessProfile = asyncHandler(async (req, res) => {
+    const result = await pool.query(
+        `SELECT id, name, email
+         FROM businesses
+         WHERE id = $1`,
+        [req.business.id]
+    );
 
-export { registerBusiness, loginBusiness };
+    if(result.rows.length === 0) {
+        return res.status(404).json({
+            success: false,
+            message: "Business not found."
+        });
+    }
+
+    return res.status(200).json({
+        success: true,
+        business: result.rows[0]
+    });
+});
+
+const logoutBusiness = asyncHandler(async (req, res) => {
+    
+    res.clearCookie("accessToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+    });
+
+    return res.status(200).json({
+        success: true,
+        message: "Logout successful."
+    });
+});
+
+export { registerBusiness, loginBusiness, businessProfile, logoutBusiness };

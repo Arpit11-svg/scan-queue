@@ -32,7 +32,7 @@ const authMiddleware = asyncHandler(async (req, res, next) => {
             });
         }
         
-        req.business = decoded;
+        req.business = businessResult.rows[0];
 
         next();
     } catch (error) {

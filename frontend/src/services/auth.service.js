@@ -25,6 +25,17 @@ class AuthService {
             throw error;
         }
     }
+
+    async logout() {
+        try {
+            const response = await apiRequest("/business/logout", {
+                method: "POST"
+            })
+        } catch (error) {
+            throw error;
+        }
+
+    };
 }
 
 const authService = new AuthService();
