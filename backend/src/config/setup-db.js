@@ -3,7 +3,7 @@ import pool from "./db.js";
 
 try {
   const schema = await fs.readFile(
-    new URL("./config/schema.sql", import.meta.url),
+    new URL("./schema.sql", import.meta.url),
     "utf8"
   );
 

@@ -3,8 +3,9 @@ import QrCode  from "qrcode";
 
 const generateBusinessQR = asyncHandler(async (req, res) => {
     const businessId = req.business.id;
+    const businessName= encodeURIComponent(req.business.name);
     
-    const customerPageURL = `${process.env.FRONTEND_URL}/join/${businessId}`;
+    const customerPageURL = `${process.env.FRONTEND_URL}/join/${businessId}/${businessName}`;
 
     const qrCode = await QrCode.toDataURL(customerPageURL);
 

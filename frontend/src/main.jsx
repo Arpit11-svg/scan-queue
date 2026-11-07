@@ -8,6 +8,7 @@ import Home from './pages/Home.jsx'
 import Login from './pages/Login.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import QRCode from './pages/QRCode.jsx'
+import JoinQueue from './pages/JoinQueue.jsx'
 
 const router = createBrowserRouter([
   {
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
       {
         path: "/qrcode",
         element: <QRCode/>
+      },
+      {
+        path: "/join/:businessId/:businessName",
+        element: <JoinQueue/>
       }
     ]
   }

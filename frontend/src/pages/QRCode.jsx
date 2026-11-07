@@ -37,11 +37,11 @@ function QRCode() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6">
-      <h1 className=" text-black text-3xl font-bold mb-3">
+      <h1 className="text-black text-3xl font-bold mb-3">
         Your Business QR Code
       </h1>
 
-      <p className="text-gray-500 mb-6">
+      <p className="text-black mb-6">
         Customers can scan this QR code to join your queue.
       </p>
 
@@ -50,7 +50,7 @@ function QRCode() {
         <img src={qrData.qrCode} alt="Business QR Code" className="w-64 h-64" />
       </div>
 
-      <p className="mt-4 text-sm text-gray-500">{qrData.customerPageURL}</p>
+      <p className="mt-4 text-sm text-black">{qrData.customerPageURL}</p>
 
       <a
         href={qrData.qrCode}
