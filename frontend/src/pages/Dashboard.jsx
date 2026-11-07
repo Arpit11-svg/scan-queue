@@ -3,7 +3,7 @@ import {
   Settings,
   LogOut,
   UserRound,
-  Headset ,
+  Headset,
   MessageSquare,
 } from "lucide-react";
 import profileService from "../services/profile.service.js";
@@ -104,7 +104,7 @@ function Dashboard() {
               <IconButton icon={Settings} title="Settings" />
 
               {/* support Icon */}
-              <IconButton icon={Headset} title="Support"  />
+              <IconButton icon={Headset} title="Support" />
 
               {/* Logout */}
               <IconButton
@@ -117,6 +117,17 @@ function Dashboard() {
           </div>
         </nav>
       </header>
+
+      {/* QRCode Generator */}
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <button
+          onClick={() => navigate("/qrcode")}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          QR Code
+        </button>
+      </main>
     </div>
   );
 }

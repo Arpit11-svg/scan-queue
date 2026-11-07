@@ -7,6 +7,7 @@ import Signup from './pages/Signup.jsx'
 import Home from './pages/Home.jsx'
 import Login from './pages/Login.jsx'
 import Dashboard from './pages/Dashboard.jsx'
+import QRCode from './pages/QRCode.jsx'
 
 const router = createBrowserRouter([
   {
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
       {
         path: "/dashboard",
         element: <Dashboard/>
+      },
+      {
+        path: "/qrcode",
+        element: <QRCode/>
       }
     ]
   }

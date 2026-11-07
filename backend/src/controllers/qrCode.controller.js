@@ -10,7 +10,7 @@ const generateBusinessQR = asyncHandler(async (req, res) => {
 
     return res.status(200).json({
         success: true,
-        businessId,
+        business: req.business,
         customerPageURL,
         qrCode
     })
