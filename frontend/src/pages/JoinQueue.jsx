@@ -1,16 +1,20 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
+import QueueService from "../services/queue.service.js";
 
 function JoinQueue() {
   const { businessId, businessName } = useParams();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
     partySize: 1,
     mobile: "",
     description: "",
-    notificationConsent: false
-});
+    notificationConsent: false,
+  });
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -35,7 +39,7 @@ function JoinQueue() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const customerDetails = {
@@ -44,9 +48,25 @@ function JoinQueue() {
     };
 
     console.log("Customer Details:", customerDetails);
+    setLoading(true);
 
-    // Next step: Send customerDetails to backend API
-    // to create a queue entry.
+    try {
+      await QueueService.joinQueue(businessId, customerDetails);
+      setSuccess("You have successfully joined the queue!");
+      setError("");
+      setFormData({
+        name: "",
+        partySize: 1,
+        mobile: "",
+        description: "",
+        notificationConsent: false,
+      });
+    } catch (error) {
+      console.error("Error joining the queue:", error);
+      setError("Failed to join the queue. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -96,6 +116,17 @@ function JoinQueue() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/*  Error and Success Messages */}
+            {success && (
+              <p className="rounded-lg bg-green-500/10 px-4 py-3 text-sm text-green-400">
+                {success}
+              </p>
+            )}
+            {error && (
+              <p className="rounded-lg bg-red-500/10 px-4 py-3 text-sm text-red-400">
+                {error}
+              </p>
+            )}
             {/* Customer Name */}
             <div>
               <label
@@ -223,9 +254,10 @@ function JoinQueue() {
             {/* Submit Button */}
             <button
               type="submit"
+              disabled={loading}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-full transition duration-200 active:scale-[0.98]"
             >
-              Join Queue
+              {loading ? "Joining..." : "Join Queue"}
             </button>
           </form>
         </div>

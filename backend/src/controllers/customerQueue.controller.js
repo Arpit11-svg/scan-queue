@@ -1,10 +1,18 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import pool from "../config/db.js";
 
+
 const joinQueue = asyncHandler(async (req, res) => {
     const { businessId } = req.params;
-    const { name, mobile, description } = req.body;
+    const {
+        name,
+        partySize = 1,
+        mobile,
+        description,
+        notificationConsent
+    } = req.body;
 
+    // Validate input
     if (
         typeof name !== "string" ||
         !name.trim() ||
@@ -24,33 +32,108 @@ const joinQueue = asyncHandler(async (req, res) => {
         });
     }
 
-    const businessResult = await pool.query(
-        `SELECT id FROM businesses WHERE id = $1`,
-        [businessId]
-    );
-
-    if (businessResult.rows.length === 0) {
-        return res.status(404).json({
+    if (!Number.isInteger(partySize) || partySize < 1 || partySize > 20) {
+        return res.status(400).json({
             success: false,
-            message: "Business not found."
+            message: "Party size must be between 1 and 20."
         });
     }
 
-    //Add customer to the queue with status 'WAITING'
-    const result = await pool.query(
-        `INSERT INTO queue_entries 
-        (business_id, name, mobile, description, status)
-        VALUES ($1, $2, $3, $4, 'WAITING')
-        RETURNING id, name, mobile, description, status, joined_at`,
-        [businessId, name.trim(), mobile.trim(), typeof description === "string" ? description.trim() : null]
-    );
+    const client = await pool.connect();
 
-    return res.status(201).json({
-        success: true,
-        message: "You have joined the queue successfully.",
-        data: result.rows[0]
-    });
+    try {
+
+        //transaction to ensure atomicity of operations
+        await client.query("BEGIN");
+
+        // Prevent simultaneous customers from getting the same token
+        await client.query(
+            "SELECT pg_advisory_xact_lock($1::bigint)",
+            [businessId]
+        );
+
+        // Check whether the business exists
+        const businessResult = await client.query(
+            `SELECT id FROM businesses WHERE id = $1`,
+            [businessId]
+        );
+
+        if (businessResult.rows.length === 0) {
+            await client.query("ROLLBACK");
+
+            return res.status(404).json({
+                success: false,
+                message: "Business not found."
+            });
+        }
+
+        // Generate the next token number for this business, each day starts from 1
+        const tokenResult = await client.query(
+            `SELECT COALESCE(MAX(token_number), 0) + 1 AS next_token
+             FROM queue_entries
+             WHERE business_id = $1
+             AND queue_date = CURRENT_DATE`,
+            [businessId]
+        );
+
+        const tokenNumber = tokenResult.rows[0].next_token;
+
+        // Insert customer into queue
+        const result = await client.query(
+            `INSERT INTO queue_entries
+            (
+                business_id,
+                name,
+                party_size,
+                token_number,
+                queue_date,
+                mobile,
+                description,
+                notification_consent,
+                status
+            )
+            VALUES ($1, $2, $3, $4, CURRENT_DATE, $5, $6, $7, 'WAITING')
+            RETURNING
+                id,
+                token_number,
+                public_token,
+                name,
+                party_size,
+                mobile,
+                description,
+                notification_consent,
+                status,
+                joined_at`,
+            [
+                businessId,
+                name.trim(),
+                partySize,
+                tokenNumber,
+                mobile.trim(),
+                typeof description === "string"
+                    ? description.trim()
+                    : null,
+                notificationConsent === true
+            ]
+        );
+
+        await client.query("COMMIT");
+
+        return res.status(201).json({
+            success: true,
+            message: "You have joined the queue successfully.",
+            data: result.rows[0]
+        });
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+        throw error;
+
+    } finally {
+        client.release();
+    }
 });
+
 
 //position of current customer with specific business_id and entryID 
 const getQueuePosition = asyncHandler(async (req, res) => {
