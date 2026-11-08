@@ -137,37 +137,33 @@ const joinQueue = asyncHandler(async (req, res) => {
 
 //position of current customer with specific business_id and entryID 
 const getQueuePosition = asyncHandler(async (req, res) => {
-    const { businessId, entryId } = req.params;
+    const { publicToken } = req.params;
 
     const result = await pool.query(
         `SELECT
             q.id,
+            q.public_token,
+            q.token_number,
             q.name,
-            q.mobile,
+            q.party_size,
             q.status,
             q.joined_at,
+
             CASE
-                WHEN q.status = 'WAITING' THEN
-                    (
-                     SELECT COUNT(*)+1 
-                     FROM queue_entries as ahead
-                     WHERE ahead.business_id = q.business_id
-                     AND ahead.status = 'WAITING'
-                     AND (
-                        ahead.joined_at < q.joined_at
-                        OR (
-                            ahead.joined_at = q.joined_at 
-                            AND ahead.id < q.id
-                        )
-                     )
-                    )
-                ELSE
-                    NULL
+                WHEN q.status = 'WAITING' THEN (
+                    SELECT COUNT(*) + 1
+                    FROM queue_entries AS ahead
+                    WHERE ahead.business_id = q.business_id
+                    AND ahead.queue_date = q.queue_date
+                    AND ahead.status = 'WAITING'
+                    AND ahead.token_number < q.token_number
+                )
+                ELSE NULL
             END AS position
-        FROM queue_entries as q
-        WHERE q.id = $1
-        AND q.business_id = $2`,
-        [entryId, businessId]
+
+        FROM queue_entries AS q
+        WHERE q.public_token = $1`,
+        [publicToken]
     );
 
     if (result.rows.length === 0) {
@@ -177,23 +173,29 @@ const getQueuePosition = asyncHandler(async (req, res) => {
         });
     }
 
+    const customer = result.rows[0];
+
     return res.status(200).json({
         success: true,
-        data: result.rows[0]
+        data: {
+            ...customer,
+            people_ahead: customer.position !== null
+                ? customer.position - 1
+                : null
+        }
     });
 });
 
 const leaveQueue = asyncHandler(async (req, res) => {
-    const { businessId, entryId } = req.params;
+    const { publicToken } = req.params;
 
     const result = await pool.query(
         `UPDATE queue_entries
          SET status = 'CANCELLED'
-         WHERE id = $1 
-          AND business_id = $2
+         WHERE public_token = $1 
           AND status IN ('WAITING', 'CALLED')
          RETURNING id, name, mobile, status`,
-        [entryId, businessId]
+        [publicToken]
     );
 
     if (result.rows.length === 0) {

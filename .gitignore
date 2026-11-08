@@ -11,3 +11,5 @@ backend/.env
 # Build output
 dist/
 build/
+
+/notes.txt

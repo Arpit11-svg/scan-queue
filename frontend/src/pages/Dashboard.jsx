@@ -119,15 +119,28 @@ function Dashboard() {
       </header>
 
       {/* QRCode Generator */}
-
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <span className="text-xl font-bold text-slate-800">
+          {business?.name}
+        </span>
+
         <button
           onClick={() => navigate("/qrcode")}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 m-9"
         >
           QR Code
         </button>
+
+        {/*  Those who want to join Queue without scanning a QR Code */}
+        <button
+          onClick={() => navigate(`/join/${business.id}/${business.name}`)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 m-9"
+        >
+          Add Walk-In
+        </button>
       </main>
+
+      
     </div>
   );
 }

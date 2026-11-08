@@ -51,8 +51,9 @@ function JoinQueue() {
     setLoading(true);
 
     try {
-      await QueueService.joinQueue(businessId, customerDetails);
+      const response = await QueueService.joinQueue(businessId, customerDetails);
       setSuccess("You have successfully joined the queue!");
+      console.log("Join Queue Response:", response);
       setError("");
       setFormData({
         name: "",

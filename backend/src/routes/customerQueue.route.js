@@ -4,7 +4,7 @@ import {joinQueue, getQueuePosition, leaveQueue} from "../controllers/customerQu
 const router = Router();
 
 router.post("/:businessId/join-queue", joinQueue);
-router.get("/:businessId/position/:entryId", getQueuePosition);
-router.delete("/:businessId/leave-queue/:entryId", leaveQueue);
+router.get("/status/:publicToken", getQueuePosition);
+router.patch("/status/:publicToken/leave", leaveQueue);
 
 export default router;
