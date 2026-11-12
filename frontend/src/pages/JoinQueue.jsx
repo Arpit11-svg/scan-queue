@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import QueueService from "../services/queue.service.js";
+import { useNavigate } from "react-router-dom";
 
 function JoinQueue() {
   const { businessId, businessName } = useParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -47,13 +49,11 @@ function JoinQueue() {
       businessId,
     };
 
-    console.log("Customer Details:", customerDetails);
     setLoading(true);
 
     try {
       const response = await QueueService.joinQueue(businessId, customerDetails);
-      setSuccess("You have successfully joined the queue!");
-      console.log("Join Queue Response:", response);
+      setSuccess("You have successfully joined the queue! Redirecting to your queue status...");
       setError("");
       setFormData({
         name: "",
@@ -62,6 +62,7 @@ function JoinQueue() {
         description: "",
         notificationConsent: false,
       });
+      navigate(`/queue-status/${response.data.public_token}`);
     } catch (error) {
       console.error("Error joining the queue:", error);
       setError("Failed to join the queue. Please try again.");

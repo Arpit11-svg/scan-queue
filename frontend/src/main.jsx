@@ -9,6 +9,7 @@ import Login from './pages/Login.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import QRCode from './pages/QRCode.jsx'
 import JoinQueue from './pages/JoinQueue.jsx'
+import QueueStatus from './pages/QueueStatus.jsx'
 
 const router = createBrowserRouter([
   {
@@ -38,6 +39,10 @@ const router = createBrowserRouter([
       {
         path: "/join/:businessId/:businessName",
         element: <JoinQueue/>
+      },
+      {
+        path: "/queue-status/:publicToken",
+        element: <QueueStatus/>
       }
     ]
   }

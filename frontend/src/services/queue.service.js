@@ -13,6 +13,20 @@ class QueueService {
             throw error;
         }
     };
+
+    async getQueuePosition(publicToken) {
+        try {
+                console.log("Public Token from queue.service.jsx :", publicToken);
+
+            const response = await apiRequest(`/customer-queue/status/${publicToken}`, {
+                method: "GET"
+            });
+            return response;
+        } catch (error) {
+            console.error("Error getting queue position:", error);
+            throw error;
+        }
+    };
 }
 
 const queueService = new QueueService();

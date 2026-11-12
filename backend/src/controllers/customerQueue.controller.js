@@ -135,7 +135,7 @@ const joinQueue = asyncHandler(async (req, res) => {
 });
 
 
-//position of current customer with specific business_id and entryID 
+//position of current customer with specific public_token
 const getQueuePosition = asyncHandler(async (req, res) => {
     const { publicToken } = req.params;
 

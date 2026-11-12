@@ -91,7 +91,7 @@ const loginBusiness = asyncHandler(async (req, res) => {
     const options = {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        sameSite: "none",
         maxAge: 24 * 60 * 60 * 1000,
         path: "/"
     }
@@ -137,7 +137,7 @@ const logoutBusiness = asyncHandler(async (req, res) => {
     res.clearCookie("accessToken", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        sameSite: "none",
     });
 
     return res.status(200).json({
