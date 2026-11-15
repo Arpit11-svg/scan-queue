@@ -1,4 +1,5 @@
 import { Server } from "socket.io";
+import socketAuthMiddleware from "../middlewares/socketAuthMiddleware.js";
 
 let io;
 
@@ -8,6 +9,27 @@ export const initializeSocket = (httpServer) => {
             origin: process.env.FRONTEND_URL,
             credentials: true
         }
+    });
+
+    // Authenticate every business connection
+    io.use(socketAuthMiddleware);
+
+    io.on("connection", (socket) => {
+
+        const businessId = socket.businessId;
+
+        // Join business-specific room
+        socket.join(`business_${businessId}`);
+
+        console.log(
+            `Business ${businessId} connected to Socket.IO`
+        );
+
+        socket.on("disconnect", () => {
+            console.log(
+                `Business ${businessId} disconnected`
+            );
+        });
     });
 
     console.log("===== Socket.IO initialized successfully! =====");

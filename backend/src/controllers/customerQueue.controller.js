@@ -1,5 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import pool from "../config/db.js";
+import { getIO } from "../config/socket.js";
 
 
 const joinQueue = asyncHandler(async (req, res) => {
@@ -118,6 +119,11 @@ const joinQueue = asyncHandler(async (req, res) => {
         );
 
         await client.query("COMMIT");
+
+        // Notify the respective business dashboard
+        getIO()
+            .to(`business_${businessId}`)
+            .emit("newQueueEntry", result.rows[0]);
 
         return res.status(201).json({
             success: true,
