@@ -5,9 +5,10 @@ import pool from "../config/db.js";
 const getBusinessQueue = asyncHandler(async (req, res) => {
 
     const result = await pool.query(
-        `SELECT id, name, mobile, description, status, joined_at
+        `SELECT id, name, mobile, description, status, joined_at, token_number
          FROM queue_entries
-         WHERE business_id = $1`,
+         WHERE business_id = $1
+         ORDER BY joined_at ASC, id ASC`,
         [req.business.id]
     );
 
