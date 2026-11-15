@@ -21,6 +21,8 @@ class AuthService {
                 method: "POST",
                 body: JSON.stringify(formData)
             })
+
+            return response;
         } catch (error) {
             throw error;
         }
@@ -31,6 +33,7 @@ class AuthService {
             const response = await apiRequest("/business/logout", {
                 method: "POST"
             })
+            return response;
         } catch (error) {
             throw error;
         }

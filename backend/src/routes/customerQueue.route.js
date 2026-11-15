@@ -5,6 +5,6 @@ const router = Router();
 
 router.post("/:businessId/join-queue", joinQueue);
 router.get("/status/:publicToken", getQueuePosition);
-router.patch("/status/:publicToken/leave", leaveQueue);
+router.patch("/:publicToken/leave", leaveQueue);
 
 export default router;

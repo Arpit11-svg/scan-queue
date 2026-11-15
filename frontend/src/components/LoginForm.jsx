@@ -33,7 +33,7 @@ function LoginForm() {
 
       setTimeout(() => {
         navigate("/dashboard");
-      }, 3000);
+      }, 5000);
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong.");
     } finally {

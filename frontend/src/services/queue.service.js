@@ -16,8 +16,6 @@ class QueueService {
 
     async getQueuePosition(publicToken) {
         try {
-                console.log("Public Token from queue.service.jsx :", publicToken);
-
             const response = await apiRequest(`/customer-queue/status/${publicToken}`, {
                 method: "GET"
             });
@@ -27,6 +25,18 @@ class QueueService {
             throw error;
         }
     };
+
+    async leaveQueue(publicToken) {
+        try {
+            const response = await apiRequest(`/customer-queue/${publicToken}/leave`, {
+                method: "PATCH"
+            });
+            return response;
+        } catch (error) {
+            console.error("Error leaving queue:", error);
+            throw error;
+        }
+    }
 }
 
 const queueService = new QueueService();
