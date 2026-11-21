@@ -5,16 +5,50 @@ import pool from "../config/db.js";
 const getBusinessQueue = asyncHandler(async (req, res) => {
 
     const result = await pool.query(
-        `SELECT id, name, mobile, description, status, joined_at, token_number
-         FROM queue_entries
-         WHERE business_id = $1
-         ORDER BY joined_at ASC, id ASC`,
+        `
+        WITH stats AS(
+
+            SELECT
+                COUNT (*) FILTER(
+                    WHERE status = 'WAITING'
+                )::INTEGER AS waiting,
+
+                COUNT (*) FILTER(
+                    WHERE status = 'CALLED'
+                )::INTEGER AS called,
+
+                COUNT(*) FILTER (
+                    WHERE status = 'SERVED'
+                )::INTEGER AS served
+            
+            FROM queue_entries
+            WHERE business_id = $1
+                AND queue_date = (NOW() AT TIME ZONE 'Asia/Kolkata')::DATE
+        ),
+        customers AS(
+            SELECT id, name, mobile, description, status,
+                joined_at, token_number, party_size, queue_date
+            FROM queue_entries
+            WHERE business_id = $1
+                AND queue_date = (NOW() AT TIME ZONE 'Asia/Kolkata')::DATE
+                AND status = 'WAITING'
+            ORDER BY joined_at ASC, id ASC
+            LIMIT 5
+        )
+        SELECT
+            (SELECT row_to_json(stats) FROM stats) AS stats,
+
+            COALESCE(
+                (SELECT json_agg(customers) FROM customers),
+                '[]'::JSON
+            ) AS customers;
+        `,
         [req.business.id]
     );
 
     res.status(200).json({
         success: true,
-        data: result.rows
+        data: result.rows[0]
     });
 });
 

@@ -38,6 +38,10 @@ CREATE TABLE IF NOT EXISTS queue_entries (
 
     token_number INTEGER,
 
+    -- Business-local queue date (IST)
+    queue_date DATE NOT NULL
+        DEFAULT ((NOW() AT TIME ZONE 'Asia/Kolkata')::DATE),
+
     -- Customer tracking and notifications
     public_token UUID NOT NULL DEFAULT gen_random_uuid(),
     notification_consent BOOLEAN NOT NULL DEFAULT FALSE,
@@ -63,3 +67,11 @@ ON queue_entries(public_token);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_queue_business_token
 ON queue_entries(business_id, token_number)
 WHERE token_number IS NOT NULL;
+
+-- efficiently find customers served today
+CREATE INDEX IF NOT EXISTS idx_queue_business_served
+ON queue_entries(business_id, served_at)
+WHERE status = 'SERVED';
+
+CREATE INDEX IF NOT EXISTS idx_queue_business_date_status
+ON queue_entries(business_id, queue_date, status, joined_at);

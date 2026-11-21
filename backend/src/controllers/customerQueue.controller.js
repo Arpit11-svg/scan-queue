@@ -93,7 +93,11 @@ const joinQueue = asyncHandler(async (req, res) => {
                 notification_consent,
                 status
             )
-            VALUES ($1, $2, $3, $4, CURRENT_DATE, $5, $6, $7, 'WAITING')
+            VALUES ($1, $2, $3, $4, 
+                (NOW() AT TIME ZONE 'Asia/Kolkata')::DATE , 
+                $5, $6, $7, 
+                'WAITING'
+            )
             RETURNING
                 id,
                 token_number,
