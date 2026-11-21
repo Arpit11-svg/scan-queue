@@ -127,7 +127,7 @@ const joinQueue = asyncHandler(async (req, res) => {
         // Notify the respective business dashboard
         getIO()
             .to(`business_${businessId}`)
-            .emit("newQueueEntry", result.rows[0]);
+            .emit("queueUpdated");
 
         return res.status(201).json({
             success: true,

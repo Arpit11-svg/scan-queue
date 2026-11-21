@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Settings,
   LogOut,
@@ -19,13 +19,30 @@ function Dashboard() {
   const [business, setBusiness] = useState(null);
   const [loading, setLoading] = useState(true);
   const [queueEntries, setQueueEntries] = useState([]);
+  const [queueStats, setQueueStats] = useState({
+    waiting: 0,
+    called: 0,
+    served: 0,
+  });
+  const [currentTime, setCurrentTime] = useState(new Date());
+
   const navigate = useNavigate();
+
+  const fetchQueueEntries = useCallback(async () => {
+    try {
+      const entries = await businessService.getQueueEntries();
+      setQueueStats(entries.data.stats);
+      setQueueEntries(entries.data.customers);
+    } catch (error) {
+      console.error("Error fetching queue entries:", error);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchBusinessProfile = async () => {
       try {
         const businessData = await businessService.getProfile();
-        setBusiness(businessData);
+        setBusiness(businessData.business);
       } catch (error) {
         console.error("Error fetching business data:", error);
       } finally {
@@ -37,37 +54,33 @@ function Dashboard() {
   }, []);
 
   useEffect(() => {
-    const fetchQueueEntries = async () => {
-      try {
-        const entries = await businessService.getQueueEntries();
-        setQueueEntries(entries.data);
-      } catch (error) {
-        console.error("Error fetching queue entries:", error);
-      }
-    };
-
     fetchQueueEntries();
-  }, []);
 
-  useEffect(() => {
     //we are connecting backend server, not to any endpoint(remove endpoint). so that we can listen to all events from backend server.
-    const socket = io(import.meta.env.VITE_API_BASE_URL.replace("/api/v1", ""), {
-      withCredentials: true,
-    });
+    const socket = io(
+      import.meta.env.VITE_API_BASE_URL.replace("/api/v1", ""),
+      {
+        withCredentials: true,
+      },
+    );
 
-    // Listen for new customers
-    socket.on("newQueueEntry", (newEntry) => {
-      console.log("New customer joined:", newEntry);
-
-      setQueueEntries((prevEntries) => [...prevEntries, newEntry]);
-    });
+    // any time the queue is updated, we will fetch the latest queue entries
+    socket.on("queueUpdated", fetchQueueEntries);
 
     // Cleanup
     return () => {
+      socket.off("queueUpdated", fetchQueueEntries);
       socket.disconnect();
     };
   }, []);
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const logout = async () => {
     try {
@@ -181,6 +194,44 @@ function Dashboard() {
           </button>
         </div>
       </main>
+
+      {/* today's Queue Stats */}
+      <section
+        className="max-w-7xl mx-auto bg-white/90 backdrop-blur-xl
+              border border-white/80 shadow-sm rounded-2xl
+              px-4 sm:px-6 py-4 mt-6"
+      >
+        <h2 className="text-lg font-bold text-slate-800 mb-4">
+          Today's Queue Stats
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          <div className="p-4 bg-slate-50 rounded-xl text-center">
+            <p className="text-sm text-slate-500">Waiting</p>
+            <p className="text-2xl font-bold text-slate-800">
+              {queueStats.waiting}
+            </p>
+          </div>
+          <div className="p-4 bg-slate-50 rounded-xl text-center">
+            <p className="text-sm text-slate-500">Called</p>
+            <p className="text-2xl font-bold text-slate-800">
+              {queueStats.called}
+            </p>
+          </div>
+          <div className="p-4 bg-slate-50 rounded-xl text-center">
+            <p className="text-sm text-slate-500">Served</p>
+            <p className="text-2xl font-bold text-slate-800">
+              {queueStats.served}
+            </p>
+          </div>
+
+          <div className="p-4 bg-slate-50 rounded-xl text-center">
+            <p className="text-sm text-slate-500">Current Time</p>
+            <p className="text-2xl font-bold text-slate-800">
+              {currentTime.toLocaleTimeString()}
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* Queue Entries */}
       <section
