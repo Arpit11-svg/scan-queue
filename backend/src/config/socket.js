@@ -21,10 +21,6 @@ export const initializeSocket = (httpServer) => {
         // Join business-specific room
         socket.join(`business_${businessId}`);
 
-        console.log(
-            `Business ${businessId} connected to Socket.IO`
-        );
-
         socket.on("disconnect", () => {
             console.log(
                 `Business ${businessId} disconnected`

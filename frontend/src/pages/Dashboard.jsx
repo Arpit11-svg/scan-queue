@@ -13,6 +13,8 @@ import { useNavigate } from "react-router-dom";
 import Logo from "../components/ui/Logo.jsx";
 import IconButton from "../components/ui/IconButton.jsx";
 
+import { io } from "socket.io-client";
+
 function Dashboard() {
   const [business, setBusiness] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -38,7 +40,6 @@ function Dashboard() {
     const fetchQueueEntries = async () => {
       try {
         const entries = await businessService.getQueueEntries();
-        console.log("Fetched queue entries:", entries.data);
         setQueueEntries(entries.data);
       } catch (error) {
         console.error("Error fetching queue entries:", error);
@@ -47,6 +48,26 @@ function Dashboard() {
 
     fetchQueueEntries();
   }, []);
+
+  useEffect(() => {
+    //we are connecting backend server, not to any endpoint(remove endpoint). so that we can listen to all events from backend server.
+    const socket = io(import.meta.env.VITE_API_BASE_URL.replace("/api/v1", ""), {
+      withCredentials: true,
+    });
+
+    // Listen for new customers
+    socket.on("newQueueEntry", (newEntry) => {
+      console.log("New customer joined:", newEntry);
+
+      setQueueEntries((prevEntries) => [...prevEntries, newEntry]);
+    });
+
+    // Cleanup
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
 
   const logout = async () => {
     try {
@@ -167,9 +188,7 @@ function Dashboard() {
               border border-white/80 shadow-sm rounded-2xl
               px-4 sm:px-6 py-4 mt-6"
       >
-        <h2 className="text-lg font-bold text-slate-800 mb-4">
-          Queue Entries
-        </h2>
+        <h2 className="text-lg font-bold text-slate-800 mb-4">Queue Entries</h2>
 
         <div className="space-y-3">
           {queueEntries.map((entry) => (
@@ -184,7 +203,9 @@ function Dashboard() {
 
                 <div>
                   <p className="font-medium text-slate-800">{entry.name}</p>
-                  <p className="text-sm text-slate-500">Token: #{entry.token_number}</p>
+                  <p className="text-sm text-slate-500">
+                    Token: #{entry.token_number}
+                  </p>
                 </div>
               </div>
 
@@ -195,7 +216,6 @@ function Dashboard() {
           ))}
         </div>
       </section>
-
     </div>
   );
 }

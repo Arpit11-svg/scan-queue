@@ -1,15 +1,17 @@
 import jwt from "jsonwebtoken";
+import { parseCookie } from "cookie";
 import pool from "../config/db.js";
 
 
 const socketAuthMiddleware = async (socket, next) => {
     try {
         // Read cookies from the handshake request
-        const cookies = cookie.parse(
+        const cookies = parseCookie(
             socket.handshake.headers.cookie || ""
-        );
+        );      
 
         const token = cookies.accessToken;
+
 
         if (!token) {
             return next(new Error("Authentication required."));
@@ -36,6 +38,7 @@ const socketAuthMiddleware = async (socket, next) => {
         next();
 
     } catch (error) {
+
         next(new Error("Invalid or expired token."));
     }
 };
