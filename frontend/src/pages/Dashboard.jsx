@@ -19,6 +19,7 @@ function Dashboard() {
   const [business, setBusiness] = useState(null);
   const [loading, setLoading] = useState(true);
   const [queueEntries, setQueueEntries] = useState([]);
+  const [callingNext, setCallingNext] = useState(false);
   const [queueStats, setQueueStats] = useState({
     waiting: 0,
     called: 0,
@@ -89,6 +90,22 @@ function Dashboard() {
       navigate("/login");
     } catch (error) {
       console.error("Error logging out:", error);
+    }
+  };
+
+  const handleCallNext = async () => {
+    try {
+      setCallingNext(true);
+
+      const response = await businessService.callNextCustomer();
+
+      alert(`Customer called: ${response.data.name}`);
+    } catch (error) {
+      alert(
+        error.response?.data?.message || "Unable to call the next customer.",
+      );
+    } finally {
+      setCallingNext(false);
     }
   };
 
@@ -267,6 +284,16 @@ function Dashboard() {
           ))}
         </div>
       </section>
+
+      {/* managing customer */}
+      <button
+        onClick={handleCallNext}
+        disabled={callingNext}
+        className="bg-blue-600 text-white px-5 py-3 rounded-lg
+             disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {callingNext ? "Calling..." : "Call Next Customer"}
+      </button>
     </div>
   );
 }

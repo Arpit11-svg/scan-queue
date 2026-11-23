@@ -15,17 +15,40 @@ export const initializeSocket = (httpServer) => {
     io.use(socketAuthMiddleware);
 
     io.on("connection", (socket) => {
+        
+        const role = socket.role;
 
-        const businessId = socket.businessId;
+        // ======= Customer Connection
+        if(role==="customer"){
+            const publicToken =socket.publicToken;
+            // Join customer-specific room
+            socket.join(`customer_${publicToken}`);
 
-        // Join business-specific room
-        socket.join(`business_${businessId}`);
+            socket.on("disconnect", () => {
+                console.log(
+                    `Customer ${publicToken} disconnected`
+                );
+            });
+            return;
 
-        socket.on("disconnect", () => {
-            console.log(
-                `Business ${businessId} disconnected`
-            );
-        });
+        }
+
+
+        // =======Business connection
+        if(role==="business"){
+            const businessId = socket.businessId;
+
+            // Join business-specific room
+            socket.join(`business_${businessId}`);
+
+            socket.on("disconnect", () => {
+                console.log(
+                    `Business ${businessId} disconnected`
+                );
+            });
+            return;
+        }
+
     });
 
     console.log("===== Socket.IO initialized successfully! =====");

@@ -25,6 +25,19 @@ class BusinessService {
             throw error;
         }
     };
+
+    async callNextCustomer(){
+        try {
+            const response = await apiRequest("/queue/business/queue/call-next",{
+                method: "PATCH"
+            });
+            return response;
+            
+        } catch (error) {
+            console.error("Error calling next customer: ",error);
+            throw error;
+        }
+    }
 }
 
 const businessService = new BusinessService();

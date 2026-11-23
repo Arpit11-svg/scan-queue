@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS queue_entries (
             'WAITING',
             'CALLED',
             'SERVED',
-            'CANCELLED'
+            'CANCELLED',
         )),
 
     token_number INTEGER,
@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS queue_entries (
 
     -- Timestamps
     joined_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    called_at TIMESTAMP,
     served_at TIMESTAMP
 );
 

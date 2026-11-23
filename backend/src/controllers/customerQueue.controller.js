@@ -204,7 +204,7 @@ const leaveQueue = asyncHandler(async (req, res) => {
          SET status = 'CANCELLED'
          WHERE public_token = $1 
           AND status IN ('WAITING', 'CALLED')
-         RETURNING id, name, mobile, status`,
+         RETURNING id, business_id, name, mobile, status`,
         [publicToken]
     );
 
@@ -214,6 +214,14 @@ const leaveQueue = asyncHandler(async (req, res) => {
             message: "Queue entry not found or already removed."
         });
     }
+
+    const businessId = result.rows[0].business_id;
+
+    // Notify the respective business dashboard
+    getIO()
+        .to(`business_${businessId}`)
+        .emit("queueUpdated");
+
 
     return res.status(200).json({
         success: true,

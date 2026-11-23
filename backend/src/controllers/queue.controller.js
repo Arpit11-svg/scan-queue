@@ -1,5 +1,6 @@
-import {asyncHandler} from "../utils/asyncHandler.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import pool from "../config/db.js";
+import { getIO } from "../config/socket.js";
 
 
 const getBusinessQueue = asyncHandler(async (req, res) => {
@@ -52,36 +53,98 @@ const getBusinessQueue = asyncHandler(async (req, res) => {
     });
 });
 
+
 const callNextCustomer = asyncHandler(async (req, res) => {
+    const businessId = req.business.id;
+    const client = await pool.connect();
 
-    const result = await pool.query(
-        `Update queue_entries
-         SET status = 'CALLED'
-         WHERE id = (
-            SELECT id
-            FROM queue_entries
-            WHERE business_id = $1 
-             AND status = 'WAITING'
-            ORDER BY joined_at ASC, id ASC
-            LIMIT 1
-         )
-         RETURNING id, name, mobile, description, status, joined_at`,
-        [req.business.id]
-    );
+    try {
+        await client.query("BEGIN");
 
-    if (result.rows.length === 0) {
-        return res.status(404).json({
-            success: false,
-            message: "No waiting customers found in the queue."
+        // Lock the business row to prevent simultaneous call-next requests
+        await client.query(
+            `SELECT id FROM businesses WHERE id = $1 FOR UPDATE`,
+            [businessId]
+        );
+
+        // Check whether another customer is already active
+        const activeCustomer = await client.query(
+            `SELECT id
+             FROM queue_entries
+             WHERE business_id = $1
+               AND queue_date = (NOW() AT TIME ZONE 'Asia/Kolkata')::DATE
+               AND status IN ('CALLED', 'ON_THE_WAY')
+             LIMIT 1`,
+            [businessId]
+        );
+
+        if (activeCustomer.rows.length > 0) {
+            await client.query("ROLLBACK");
+
+            return res.status(409).json({
+                success: false,
+                message: "Please serve or cancel the current customer first."
+            });
+        }
+
+        // Select the next customer
+        const result = await client.query(
+            `UPDATE queue_entries
+             SET status = 'CALLED',
+                 called_at = NOW()
+             WHERE id = (
+                 SELECT id
+                 FROM queue_entries
+                 WHERE business_id = $1
+                   AND queue_date = (NOW() AT TIME ZONE 'Asia/Kolkata')::DATE
+                   AND status = 'WAITING'
+                 ORDER BY joined_at ASC, id ASC
+                 LIMIT 1
+                 FOR UPDATE
+             )
+             RETURNING id, business_id, public_token,
+                       name, mobile, description,
+                       status, joined_at, token_number`,
+            [businessId]
+        );
+
+        if (result.rows.length === 0) {
+            await client.query("ROLLBACK");
+
+            return res.status(404).json({
+                success: false,
+                message: "No waiting customers found in the queue."
+            });
+        }
+
+        await client.query("COMMIT");
+
+        const customer = result.rows[0];
+
+        // Refresh business dashboard
+        getIO()
+            .to(`business_${businessId}`)
+            .emit("queueUpdated");
+
+        return res.status(200).json({
+            success: true,
+            message: "Next customer has been called.",
+            data: {
+                id: customer.id,
+                name: customer.name,
+                token_number: customer.token_number,
+                status: customer.status
+            }
         });
-    }
 
-    res.status(200).json({
-        success: true,
-        data: result.rows[0],
-        message: "Next customer has been called."
-    });
+    } catch (error) {
+        await client.query("ROLLBACK");
+        throw error;
+    } finally {
+        client.release();
+    }
 });
+
 
 //mark customer as SERVED or CANCELLED
 const updateQueueStatus = asyncHandler(async (req, res) => {
@@ -109,7 +172,7 @@ const updateQueueStatus = asyncHandler(async (req, res) => {
         [status, id, req.business.id, status]
     );
 
-    if(result.rows.length === 0) {
+    if (result.rows.length === 0) {
         return res.status(404).json({
             success: false,
             message: "Customer not found or already processed."
