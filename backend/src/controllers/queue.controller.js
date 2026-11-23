@@ -121,6 +121,14 @@ const callNextCustomer = asyncHandler(async (req, res) => {
 
         const customer = result.rows[0];
 
+        // Notify the specific customer
+        getIO()
+            .to(`customer_${customer.public_token}`)
+            .emit("customerCalled", {
+                tokenNumber: customer.token_number,
+                message: "It's your turn! Please proceed to the counter."
+            });
+            
         // Refresh business dashboard
         getIO()
             .to(`business_${businessId}`)

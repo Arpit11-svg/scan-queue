@@ -11,9 +11,9 @@ import {
   AlertCircle,
   X,
 } from "lucide-react";
-
 import { useParams } from "react-router-dom";
 import QueueService from "../services/queue.service.js";
+import { io } from "socket.io-client";
 
 function QueueStatus() {
   const { publicToken } = useParams();
@@ -51,6 +51,38 @@ function QueueStatus() {
     fetchQueueStatus();
   }, [fetchQueueStatus]);
 
+  useEffect(() => {
+    if (!publicToken) return;
+
+    const socket = io(
+      import.meta.env.VITE_API_BASE_URL.replace("/api/v1", ""),
+      {
+        auth: {
+          publicToken,
+        },
+      },
+    );
+
+    socket.on("connect", () => {
+      console.log("Customer connected:", socket.id);
+    });
+
+    socket.on("customerCalled", (data) => {
+      console.log(data.message);
+
+      // Fetch the latest customer status from PostgreSQL
+      fetchQueueStatus();
+    });
+
+    socket.on("connect_error", (error) => {
+      console.error("Socket connection error:", error.message);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [publicToken, fetchQueueStatus]);
+
   // Leave queue
   const handleLeaveQueue = async () => {
     setLeaving(true);
@@ -82,7 +114,7 @@ function QueueStatus() {
     if (!fullName) return "Dear Customer";
     const name = fullName.split(" ")[0];
     return name.charAt(0).toUpperCase() + name.slice(1);
-  }
+  };
 
   // Loading screen
   if (loading) {
@@ -176,7 +208,7 @@ function QueueStatus() {
           {/* Welcome */}
           <div className="text-center px-4 pt-5 pb-3">
             <h1 className="text-xl font-bold text-slate-800">
-             {isCalled
+              {isCalled
                 ? "It's your turn!"
                 : isServed
                   ? "Service completed!"
