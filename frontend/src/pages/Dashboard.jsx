@@ -4,7 +4,7 @@ import {
   LogOut,
   UserRound,
   Headset,
-  MessageSquare,
+  Users,
   User,
 } from "lucide-react";
 import businessService from "../services/business.service.js";
@@ -253,36 +253,50 @@ function Dashboard() {
       {/* Queue Entries */}
       <section
         className="max-w-7xl mx-auto bg-white/90 backdrop-blur-xl
-              border border-white/80 shadow-sm rounded-2xl
-              px-4 sm:px-6 py-4 mt-6"
+        border border-white/80 shadow-sm rounded-2xl
+        px-4 sm:px-6 py-4 mt-6"
       >
         <h2 className="text-lg font-bold text-slate-800 mb-4">Queue Entries</h2>
 
-        <div className="space-y-3">
-          {queueEntries.map((entry) => (
-            <div
-              key={entry.id}
-              className="flex items-center justify-between p-3 bg-slate-50 rounded-xl"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center">
-                  <User className="w-5 h-5 text-white" />
+        {queueEntries.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-10 text-center">
+            <Users className="w-10 h-10 text-slate-300 mb-3" />
+
+            <p className="font-semibold text-slate-700">
+              No customers in the queue
+            </p>
+
+            <p className="text-sm text-slate-400 mt-1">
+              Customers who join your queue will appear here.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {queueEntries.map((entry) => (
+              <div
+                key={entry.id}
+                className="flex items-center justify-between p-3 bg-slate-50 rounded-xl"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center">
+                    <User className="w-5 h-5 text-white" />
+                  </div>
+
+                  <div>
+                    <p className="font-medium text-slate-800">{entry.name}</p>
+                    <p className="text-sm text-slate-500">
+                      Token: #{entry.token_number}
+                    </p>
+                  </div>
                 </div>
 
-                <div>
-                  <p className="font-medium text-slate-800">{entry.name}</p>
-                  <p className="text-sm text-slate-500">
-                    Token: #{entry.token_number}
-                  </p>
-                </div>
+                <span className="text-xs font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-600">
+                  {entry.status}
+                </span>
               </div>
-
-              <span className="text-xs font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-600">
-                {entry.status}
-              </span>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* managing customer */}

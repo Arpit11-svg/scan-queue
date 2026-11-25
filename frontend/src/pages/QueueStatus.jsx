@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { LoaderCircle, CheckCircle2, AlertCircle } from "lucide-react";
 import { useParams } from "react-router-dom";
 import QueueService from "../services/queue.service.js";
@@ -99,7 +99,6 @@ function QueueStatus() {
 
   const status = customer?.status?.toUpperCase();
   const isCancelled = status === "CANCELLED";
-  const isCalled = status === "CALLED";
   const isServed = status === "SERVED";
 
   // Loading screen
@@ -164,7 +163,7 @@ function QueueStatus() {
     );
   }
 
-  //Served Screen
+  // Served Screen
   if (isServed) {
     return (
       <div className="min-h-[100dvh] bg-slate-50 flex items-center justify-center p-5">
@@ -172,11 +171,11 @@ function QueueStatus() {
           <CheckCircle2 className="w-14 h-14 text-emerald-500 mx-auto" />
 
           <h2 className="text-xl font-bold text-slate-800 mt-4">
-            You have been served successfully!
+            Your service is complete!
           </h2>
 
           <p className="text-sm text-slate-500 mt-2">
-            Thank you for using ScanQ.
+            Thank you for choosing ScanQ. We hope you had a great experience!
           </p>
 
           <p className="text-xs text-slate-400 mt-8">
@@ -203,7 +202,6 @@ function QueueStatus() {
       {status === "CALLED" && (
         <QueueCalled
           customer={customer}
-          showLeaveModal={showLeaveModal}
           setShowLeaveModal={setShowLeaveModal}
           handleLeaveQueue={handleLeaveQueue}
         />
