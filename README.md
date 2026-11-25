@@ -188,10 +188,4 @@ These are planned ideas and are **not yet implemented**:
 
 ---
 
-## 👨‍💻 Author
-
-**Arpit Choudhary**
-
----
-
 ⭐ If you found this project useful, consider giving it a star!
