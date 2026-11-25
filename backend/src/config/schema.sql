@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS queue_entries (
             'WAITING',
             'CALLED',
             'SERVED',
-            'CANCELLED',
+            'CANCELLED'
         )),
 
     token_number INTEGER,

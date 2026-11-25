@@ -65,7 +65,7 @@ function JoinQueue() {
       navigate(`/queue-status/${response.data.public_token}`);
     } catch (error) {
       console.error("Error joining the queue:", error);
-      setError("Failed to join the queue. Please try again.");
+      setError(error.message || "Failed to join the queue. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -194,7 +194,6 @@ function JoinQueue() {
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Phone{" "}
-                  <span className="text-gray-400 font-normal">(optional)</span>
                 </label>
 
                 <input

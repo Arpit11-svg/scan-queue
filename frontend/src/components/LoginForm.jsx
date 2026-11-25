@@ -35,7 +35,7 @@ function LoginForm() {
         navigate("/dashboard");
       }, 5000);
     } catch (err) {
-      setError(err.response?.data?.message || "Something went wrong.");
+      setError(err.message || "Something went wrong during login.");
     } finally {
       setLoading(false);
     }

@@ -67,7 +67,7 @@ const loginBusiness = asyncHandler(async (req, res) => {
     if (result.rows.length === 0) {
         return res.status(401).json({
             success: false,
-            message: "Invalid email or password."
+            message: "Invalid email or password. Please check your credentials and try again."
         });
     }
 
@@ -81,7 +81,7 @@ const loginBusiness = asyncHandler(async (req, res) => {
     if (!isMatch) {
         return res.status(401).json({
             success: false,
-            message: "Invalid email or password."
+            message: "Invalid email or password. Please check your credentials and try again."
         });
     }
 
