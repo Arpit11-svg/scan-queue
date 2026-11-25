@@ -128,7 +128,7 @@ const callNextCustomer = asyncHandler(async (req, res) => {
                 tokenNumber: customer.token_number,
                 message: "It's your turn! Please proceed to the counter."
             });
-            
+
         // Refresh business dashboard
         getIO()
             .to(`business_${businessId}`)
@@ -162,7 +162,7 @@ const updateQueueStatus = asyncHandler(async (req, res) => {
     if (status !== 'SERVED' && status !== 'CANCELLED') {
         return res.status(400).json({
             success: false,
-            message: "Invalid status. Only 'SERVED' or 'CANCELLED' are allowed."
+            message: "Invalid status. Only 'WAITING' or 'CALLED' are allowed."
         });
     }
 
@@ -194,6 +194,52 @@ const updateQueueStatus = asyncHandler(async (req, res) => {
     });
 });
 
+const getActiveCustomer = asyncHandler(async (req, res) => {
+    const result = await pool.query(
+        `
+        SELECT id, name, mobile, description, status,
+            joined_at, token_number, party_size, queue_date
+        FROM queue_entries
+        WHERE business_id = $1
+            AND queue_date = (NOW() AT TIME ZONE 'Asia/Kolkata')::DATE
+            AND status IN ('CALLED', 'ON_THE_WAY')`,
+        [req.business.id]
+    );
 
+    res.status(200).json({
+        success: true,
+        data: result.rows[0] || null
+    });
+})
 
-export { getBusinessQueue, callNextCustomer, updateQueueStatus };
+const cancelActiveCustomer = asyncHandler(async (req, res) => {
+
+    const customerId = req.params.id;
+    const businessId = req.business.id;
+
+    const result = await pool.query(
+        `UPDATE queue_entries
+         SET status = 'CANCELLED'
+         WHERE id = $1
+           AND business_id = $2
+           AND status IN ('ON_THE_WAY', 'CALLED')
+           AND queue_date = (NOW() AT TIME ZONE 'Asia/Kolkata')::DATE
+         RETURNING id, business_id, name, mobile, status
+        `,
+        [customerId, businessId]
+    );
+    if (result.rows.length === 0) {
+        return res.status(404).json({
+            success: false,
+            message: "No active customer found."
+        });
+    }
+
+    res.status(200).json({
+        success: true,
+        message: "Customer cancelled successfully.",
+        customer: result.rows[0]
+    });
+});
+
+export { getBusinessQueue, callNextCustomer, updateQueueStatus, getActiveCustomer, cancelActiveCustomer };

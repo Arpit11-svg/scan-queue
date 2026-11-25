@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import authMiddleware from "../middlewares/auth.middleware.js";
-import { getBusinessQueue, callNextCustomer, updateQueueStatus } from "../controllers/queue.controller.js";
+import { getBusinessQueue, callNextCustomer, updateQueueStatus, getActiveCustomer, cancelActiveCustomer } from "../controllers/queue.controller.js";
 
 
 const router = Router();
@@ -12,5 +12,7 @@ router.use(authMiddleware);
 router.get("/business/queue", getBusinessQueue);
 router.patch("/business/queue/call-next", callNextCustomer);
 router.patch("/business/queue/:id/status", updateQueueStatus);
+router.get("/business/queue/active", getActiveCustomer);
+router.patch("business/queue/:id/cancel", cancelActiveCustomer);
 
 export default router;
