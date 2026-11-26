@@ -42,12 +42,24 @@ class BusinessService {
     async getActiveCustomer(){
         try {
             const response = await apiRequest("/queue/business/queue/active", {
-                mathod: "GET"
+                method: "GET"
             });
             return response;
 
         } catch (error) {
-            console.error("Error calling next customer: ",error);
+            console.error("Error getting active customer: ",error);
+            throw error;
+        }
+    }
+
+    async cancelActiveCustomer(customerId){
+        try {
+            const response = await apiRequest(`/queue/business/queue:${customerId}/cancel`, {
+                method: "PATCH"
+            });
+            return response;
+        } catch (error) {
+            console.error("Error canceling active customer: ",error);
             throw error;
         }
     }
