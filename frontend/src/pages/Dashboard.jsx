@@ -25,6 +25,7 @@ function Dashboard() {
     called: 0,
     served: 0,
   });
+  const [activeCustomer, setActiveCustomer] = useState(null);
   const [currentTime, setCurrentTime] = useState(new Date());
 
   const navigate = useNavigate();
@@ -34,6 +35,16 @@ function Dashboard() {
       const entries = await businessService.getQueueEntries();
       setQueueStats(entries.data.stats);
       setQueueEntries(entries.data.customers);
+    } catch (error) {
+      console.error("Error fetching queue entries:", error);
+    }
+  }, []);
+
+  const fetchActiveCustomer = useCallback(async () => {
+    try {
+      const customer = await businessService.getActiveCustomer();
+      console.log("Active customer from DASHBOARD>JSX: ", customer);
+      setActiveCustomer(customer.data);
     } catch (error) {
       console.error("Error fetching queue entries:", error);
     }
@@ -98,7 +109,7 @@ function Dashboard() {
       setCallingNext(true);
 
       const response = await businessService.callNextCustomer();
-
+      await fetchActiveCustomer();
       alert(`Customer called: ${response.data.name}`);
     } catch (error) {
       alert(
@@ -308,6 +319,35 @@ function Dashboard() {
       >
         {callingNext ? "Calling..." : "Call Next Customer"}
       </button>
+      {/* Active Customer */}
+      {activeCustomer && (
+        <div className="mt-5 p-5 bg-white border border-blue-200 rounded-xl shadow-sm">
+          <h2 className="text-lg font-semibold text-gray-800 mb-3">
+            Active Customer
+          </h2>
+
+          <div className="space-y-2">
+            <p>
+              <span className="font-medium">Name:</span> {activeCustomer.name}
+            </p>
+
+            <p>
+              <span className="font-medium">Token:</span> #
+              {activeCustomer.token_number}
+            </p>
+
+            <p>
+              <span className="font-medium">Party Size:</span>{" "}
+              {activeCustomer.party_size}
+            </p>
+
+            <p>
+              <span className="font-medium">Status:</span>{" "}
+              {activeCustomer.status}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

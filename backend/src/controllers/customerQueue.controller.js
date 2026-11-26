@@ -73,7 +73,7 @@ const joinQueue = asyncHandler(async (req, res) => {
             `SELECT COALESCE(MAX(token_number), 0) + 1 AS next_token
              FROM queue_entries
              WHERE business_id = $1
-             AND queue_date = CURRENT_DATE`,
+             AND queue_date = (NOW() AT TIME ZONE 'Asia/Kolkata')::DATE`,
             [businessId]
         );
 

@@ -38,6 +38,19 @@ class BusinessService {
             throw error;
         }
     }
+
+    async getActiveCustomer(){
+        try {
+            const response = await apiRequest("/queue/business/queue/active", {
+                mathod: "GET"
+            });
+            return response;
+
+        } catch (error) {
+            console.error("Error calling next customer: ",error);
+            throw error;
+        }
+    }
 }
 
 const businessService = new BusinessService();

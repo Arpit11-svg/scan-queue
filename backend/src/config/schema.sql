@@ -65,15 +65,16 @@ ON queue_entries(business_id, status, joined_at);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_queue_public_token
 ON queue_entries(public_token);
 
--- Ensure token numbers are unique within a business
-CREATE UNIQUE INDEX IF NOT EXISTS idx_queue_business_token
-ON queue_entries(business_id, token_number)
+-- Ensure token numbers are unique per business per day
+CREATE UNIQUE INDEX IF NOT EXISTS idx_queue_business_date_token
+ON queue_entries(business_id, queue_date, token_number)
 WHERE token_number IS NOT NULL;
 
--- efficiently find customers served today
+-- Efficiently find customers served
 CREATE INDEX IF NOT EXISTS idx_queue_business_served
 ON queue_entries(business_id, served_at)
 WHERE status = 'SERVED';
 
+-- Optimize business queue lookups by date and status
 CREATE INDEX IF NOT EXISTS idx_queue_business_date_status
 ON queue_entries(business_id, queue_date, status, joined_at);
